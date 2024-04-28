@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan - Gameloop</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import Stan from '../src/Stan.js'
+        
+        const sources = [
+        {
+            name: 'colorTexture',
+            type: 'texture',
+            path: '/textures/Door_Wood_001_basecolor.jpg'
+        },
+        {
+            name: 'aoTexture',
+            type: 'texture',
+            path: '/textures/Door_Wood_001_ambientOcclusion.jpg'
+        },
+        {
+            name: 'alphaTexture',
+            type: 'texture',
+            path: '/textures/Door_Wood_001_opacity.jpg'
+        },
+        {
+            name: 'helmetModel',
+            type: 'gltfModel',
+            path: '/models/helmet/FlightHelmet.gltf'
+        }
+    ]
+
+        
+        const stan = new Stan()
+        stan.camera.instance.position.set(0, 0, 4)
+        
+        /**
+        * Load resources
+        */
+        stan.assets.loadAssets(sources)
+        
+        /**
+        * Meshes
+        */
+        const material = new THREE.MeshStandardMaterial()
+        const geometry = new THREE.PlaneGeometry(1, 1, 100, 100)
+        geometry.setAttribute(
+        'uv2',
+        new THREE.BufferAttribute(geometry.attributes.uv.array, 2)
+        )
+        const doorMesh = stan.mesh.CreateFromGeometry(geometry, material)
+        doorMesh.position.x = -1
+        
+        let helmetModel = null
+        
+        stan.onAssetsLoaded = (e) => {
+            // We need to wait for the door resources to be
+            // loaded before applying them
+            material.map = stan.assets.get('colorTexture')
+            material.aoMap = stan.assets.get('aoTexture')
+            material.transparent = true
+            material.alphaMap = stan.assets.get('alphaTexture')
+            material.needsUpdate = true
+            
+            // We create the helmet mesh when everything is loaded
+            helmetModel = stan.assets.get('helmetModel').scene
+            helmetModel.scale.set(2, 2, 2)
+            helmetModel.position.set(1, -0.5, 0)
+            stan.scene.add(helmetModel)
+        }
+        
+        
+        const ambientLight = stan.light.CreateAmbient('white', 1)
+        const directionalLight = stan.light.CreateDirectional('white', 1)
+        directionalLight.position.set(5, 3, 3)
+        
+        stan.update = (dt) => {
+            if (helmetModel)
+            helmetModel.rotateY(dt)
+        }
+        
+        stan.start()
+        
+    </script>
+</body>
+</html>
