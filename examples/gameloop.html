@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan - Gameloop</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import Stan from '../src/Stan'
+
+        const stan = new Stan()
+        
+        stan.update = (dt) => {
+            stan.logger.info('My game loop works!')
+            stan.logger.info('Last dt = ' + dt)
+        }
+
+        stan.start()
+    </script>
+</body>
+</html>
