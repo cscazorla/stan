@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan - Gameloop</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import Stan from '../src/Stan.js'
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+        
+        const stan = new Stan()
+        stan.camera.instance.position.set(4, 3, 5)
+        
+        const gltfLoader = new GLTFLoader()
+        gltfLoader.load(
+            '/models/Fox/Fox.gltf',
+            (gltf) =>
+            {
+                console.log('success')
+                console.log(gltf)
+                gltf.scene.scale.set(0.025, 0.025, 0.025)
+                stan.scene.add(gltf.scene)
+            },
+            (progress) => {
+                console.log('progress')
+                console.log(progress)
+            },
+            (error) => {
+                console.log('error')
+                console.log(error)
+            }
+        )
+
+        const ambientLight = stan.light.CreateAmbient('white', 0.8)
+        const directionalLight = stan.light.CreateDirectional('white', 0.6)
+        directionalLight.position.set(5, 5, 5)
+        
+        const planeMesh = stan.mesh.CreateFromGeometry(
+            new THREE.PlaneGeometry(10, 10),
+            new THREE.MeshStandardMaterial({
+                color: '#444444',
+                metalness: 0,
+                roughness: 0.5
+            })
+        )
+        planeMesh.rotateX(-Math.PI/2)
+            
+            
+        stan.start()
+    </script>
+</body>
+</html>
