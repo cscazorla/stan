@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import Stan from '../src/Stan.js'
+
+        const game = new Stan()
+
+        game.camera.instance.position.set(2, 3, 5)
+
+        const ambientLight = game.light.CreateAmbient('white', 1)
+        const directionalLight = game.light.CreateDirectional('white', 1)
+        directionalLight.position.set(5, 3, 3)
+
+        const player = game.createObject()
+        game.addComponentToObject(
+            player,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.BoxGeometry(1, 1, 1),
+                new THREE.MeshStandardMaterial({
+                    color: 'cornflowerblue'
+                })
+            )
+        )
+
+        console.log(player)
+
+        game.update = (dt) => {
+            player.rotateY(dt)
+        }
+
+        game.start()
+
+    </script>
+</body>
+</html>
