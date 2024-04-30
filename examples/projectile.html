@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import * as CANNON from 'cannon-es'
+        import Stan from '../src/Stan.js'
+
+        const game = new Stan()
+        game.camera.instance.position.set(8, 20, 40)
+        game.physics.world.gravity.set(0, -9.81, 0)
+
+        const ambientLight = game.light.CreateAmbient('white', 1)
+        const directionalLight = game.light.CreateDirectional('white', 1)
+        directionalLight.position.set(10, 10, 10)
+        directionalLight.shadow.camera.near = 0
+        directionalLight.shadow.camera.far = 50
+        directionalLight.shadow.camera.top = 40
+        directionalLight.shadow.camera.right = 40
+        directionalLight.shadow.camera.bottom = -40
+        directionalLight.shadow.camera.left = -40
+
+        const ball = game.createObject()
+        game.addComponentToObject(
+            ball,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.SphereGeometry(1, 32, 16),
+                new THREE.MeshStandardMaterial({color: 'crimson'})
+            )
+        )
+        game.addComponentToObject(
+            ball,
+            'rigidbody',
+            game.physics.CreateBody({
+                mass: 1,
+                shape: new CANNON.Sphere(1)
+            })
+        )
+        ball.position.set(-8, 1, 8)
+        ball.rigidbody.velocity.set(10, 15, -10)
+
+        const floor = game.createObject("floor")
+        game.addComponentToObject(
+            floor,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.PlaneGeometry( 100, 100 ),
+                new THREE.MeshStandardMaterial( {color: 'darkslategray'} )
+            )
+        )
+        floor.rotateX(-Math.PI / 2)
+
+        game.start()
+    </script>
+</body>
+</html>
