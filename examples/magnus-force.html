@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import * as CANNON from 'cannon-es'
+        import Stan from '../src/Stan.js'
+
+        const game = new Stan()
+        game.camera.instance.position.set(0, 15, 23)
+
+        const ambientLight = game.light.CreateAmbient('white', 1)
+        const directionalLight = game.light.CreateDirectional('white', 1)
+
+        const ball = game.createObject()
+        game.addComponentToObject(
+            ball,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.SphereGeometry(1, 32, 16),
+                new THREE.MeshStandardMaterial({color: 'darkgreen', wireframe: true})
+            )
+        )
+        game.addComponentToObject(
+            ball,
+            'rigidbody',
+            game.physics.CreateBody({
+                mass: 1,
+                shape: new CANNON.Sphere(1)
+            })
+        )
+        const angularVelocity = new CANNON.Vec3(0, 2, 0)
+        const linearVelocity = new CANNON.Vec3(5, 0, -4)
+        ball.rigidbody.velocity.copy(linearVelocity)
+        ball.rigidbody.angularVelocity.copy(angularVelocity)
+
+        const obstacle = game.mesh.CreateFromGeometry(
+            new THREE.BoxGeometry(8, 2, 3),
+            new THREE.MeshStandardMaterial({color: 'crimson'})
+        )
+        obstacle.position.set(0, 0, -20)
+
+        const gridHelper = game.mesh.CreateGridHelper(200, 200)
+
+        game.start()
+
+        game.update = (dt) => {
+            const magnusForce = game.forces.GenerateMagnus(
+                linearVelocity,
+                angularVelocity,
+                0.1,
+            )
+            ball.rigidbody.applyForce(magnusForce)
+        }
+    </script>
+</body>
+</html>
