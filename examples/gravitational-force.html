@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import * as CANNON from 'cannon-es'
+        import Stan from '../src/Stan.js'
+
+        const game = new Stan()
+        game.camera.instance.position.set(40, 50, 70)
+
+        const G = 3
+        const initialConditions = [
+            {
+                color: 'khaki',
+                mass: 1000,
+                radius: 2,
+                position: new THREE.Vector3(),
+                initialVelocity: new CANNON.Vec3()
+            },
+            {
+                color: 'darkred',
+                mass: 1,
+                radius: 0.8,
+                position: new THREE.Vector3(20, 0, 0),
+                initialVelocity: new CANNON.Vec3(0, 0, 30)
+            },
+            {
+                color: 'cornflowerblue',
+                mass: 1,
+                radius: 1,
+                position: new THREE.Vector3(40, 0, 0),
+                initialVelocity: new CANNON.Vec3(0, 0, 40)
+            },
+            {
+                color: 'coral',
+                mass: 1,
+                radius: 1.2,
+                position: new THREE.Vector3(60, 0, 0),
+                initialVelocity: new CANNON.Vec3(0, 0, 50)
+            },
+            {
+                color: 'darkseagreen',
+                mass: 1,
+                radius: 1.8,
+                position: new THREE.Vector3(80, 0, 0),
+                initialVelocity: new CANNON.Vec3(0, 0, 70)
+            },
+        ]
+        const celestialBodies = []
+
+        const origin = game.createObject()
+        origin.axesHelper.visible = true
+        origin.axesHelper.scale.set(5, 5, 5)
+
+        const gridHelper = game.mesh.CreateGridHelper(300, 300)
+        const ambientLight = game.light.CreateAmbient('white', 1)
+        const arrowHelper = game.mesh.CreateArrowHelper(
+            new THREE.Vector3(),
+            new THREE.Vector3(),
+            5,
+            0xFF0000
+        )
+
+        for (const body of initialConditions)
+        {
+            const entity = game.createObject()
+            game.addComponentToObject(
+                entity,
+                'mesh',
+                game.mesh.CreateFromGeometry(
+                    new THREE.SphereGeometry(body.radius, 32, 16),
+                    new THREE.MeshStandardMaterial({color: body.color})
+                )
+            )
+            game.addComponentToObject(
+                entity,
+                'rigidbody',
+                game.physics.CreateBody({
+                    mass: body.mass,
+                    shape: new CANNON.Sphere(body.radius)
+                })
+            )
+            entity.position.copy(body.position)
+            entity.rigidbody.velocity.copy(body.initialVelocity)
+
+            celestialBodies.push(entity)
+        }
+
+        game.start()
+
+        game.update = (dt) => {
+
+            // Apply gravitational force to each celestial body
+            for (let i = 0; i < celestialBodies.length; i++)
+            {
+                for (let j = i + 1; j < celestialBodies.length; j++)
+                {
+                    const gameObjectA = celestialBodies[i]
+                    const gameObjectB = celestialBodies[j]
+
+                    if (gameObjectA.rigidbody && gameObjectB.rigidbody)
+                    {
+                        const gravitationalForce = game.forces.GenerateGravitational(
+                            gameObjectA.position,
+                            gameObjectB.position,
+                            gameObjectA.rigidbody.mass,
+                            gameObjectB.rigidbody.mass,
+                            G,
+                            1,
+                            100
+                        )
+
+                        gameObjectA.rigidbody.applyForce(gravitationalForce)
+                        gameObjectB.rigidbody.applyForce(gravitationalForce.negate())
+                    }
+                }
+            }
+
+            // Update arrow helper with the total force exerted on a celestial body
+            arrowHelper.position.copy(celestialBodies[1].position)
+            const totalForceUnitVector = new THREE.Vector3().copy(celestialBodies[1].rigidbody.force).normalize()
+            arrowHelper.setDirection(totalForceUnitVector)
+        }
+
+
+    </script>
+</body>
+</html>
