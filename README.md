@@ -18,6 +18,8 @@ Stan is a 3D game engine implemented in ES6 for learning purposes. It combines [
 * Physics
 * Animations
 
+# Why Stan?
+
 This engine is named after Smilin' Stan S. Stanman, the hillarious character in the [Monkey Island](https://es.wikipedia.org/wiki/Monkey_Island) series.
 
 ![image](static/img/stan.gif)
