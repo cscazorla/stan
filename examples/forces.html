@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import * as CANNON from 'cannon-es'
+        import Stan from '../src/Stan.js'
+
+        const game = new Stan()
+        game.camera.instance.position.set(8, 20, 40)
+
+        const ambientLight = game.light.CreateAmbient('white', 1)
+        const directionalLight = game.light.CreateDirectional('white', 1)
+        directionalLight.position.set(9, 9, 9)
+        directionalLight.shadow.camera.top = 20
+        directionalLight.shadow.camera.right = 20
+        directionalLight.shadow.camera.bottom = -20
+        directionalLight.shadow.camera.left = -20
+
+        const smallBall = game.createObject()
+        game.addComponentToObject(
+            smallBall,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.SphereGeometry(1, 32, 16),
+                new THREE.MeshStandardMaterial({color: 'royalblue'})
+            )
+        )
+        game.addComponentToObject(
+            smallBall,
+            'rigidbody',
+            game.physics.CreateBody({
+                mass: 1,
+                shape: new CANNON.Sphere(1)
+            })
+        )
+        smallBall.position.set(-8, 1, 8)
+        smallBall.rigidbody.velocity.set(0, 0, -2)
+
+        const bigBall = game.createObject()
+        game.addComponentToObject(
+            bigBall,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.SphereGeometry(2, 32, 16),
+                new THREE.MeshStandardMaterial({color: 'gold'})
+            )
+        )
+        game.addComponentToObject(
+            bigBall,
+            'rigidbody',
+            game.physics.CreateBody({
+                mass: 2,
+                shape: new CANNON.Sphere(1)
+            })
+        )
+        bigBall.position.set(-4, 2, 8)
+        bigBall.rigidbody.velocity.set(0, 0, -2)
+
+        const floor = game.createObject("floor")
+        game.addComponentToObject(
+            floor,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.PlaneGeometry( 100, 100 ),
+                new THREE.MeshStandardMaterial( {color: 'sienna'} )
+            )
+        )
+        floor.rotateX(-Math.PI / 2)
+
+        game.start()
+
+        game.update = (dt) => {
+            console.log(smallBall.rigidbody.velocity, bigBall.rigidbody.velocity)
+            smallBall.rigidbody.applyForce(new CANNON.Vec3(1, 0, 0))
+            bigBall.rigidbody.applyForce(new CANNON.Vec3(3, 0, 0))
+        }
+
+    </script>
+</body>
+</html>
