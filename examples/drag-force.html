@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import * as CANNON from 'cannon-es'
+        import Stan from '../src/Stan.js'
+
+        const game = new Stan()
+        game.camera.instance.position.set(10, 20, 50)
+
+        const ambientLight = game.light.CreateAmbient('white', 1)
+        const directionalLight = game.light.CreateDirectional('white', 0.6)
+
+        const ball = game.createObject()
+        game.addComponentToObject(
+            ball,
+            'mesh',
+            game.mesh.CreateFromGeometry(
+                new THREE.SphereGeometry(1, 32, 16),
+                new THREE.MeshStandardMaterial({color: 'crimson'})
+            )
+        )
+        game.addComponentToObject(
+            ball,
+            'rigidbody',
+            game.physics.CreateBody({
+                mass: 1,
+                shape: new CANNON.Sphere(1)
+            })
+        )
+        ball.position.set(0, 20, 0)
+
+        const gridHelper = game.mesh.CreateGridHelper(100, 100)
+        const waterCube = game.mesh.CreateFromGeometry(
+            new THREE.BoxGeometry(30, 10, 25),
+            new THREE.MeshStandardMaterial({color: 'darkblue', transparent: true, opacity: 0.7})
+        )
+        waterCube.position.y = 5
+
+        game.start()
+
+        game.update = (dt) => {
+            // Simulating the collision of the ball with the bottom floor
+            if (ball.position.y > 0) {
+                ball.rigidbody.applyForce(new CANNON.Vec3(0, -9.81, 0))
+                if (ball.position.y <= 10) {
+                    console.log("Ball in the water")
+                    const dragForce = game.forces.GenerateDrag(1, ball.rigidbody.velocity)
+                    ball.rigidbody.applyForce(dragForce)
+                }
+            } else {
+                ball.rigidbody.velocity.set(0, 0, 0)
+            }
+
+            console.log(ball.rigidbody.velocity.y, ball.rigidbody.force.y)
+        }
+
+    </script>
+</body>
+</html>
