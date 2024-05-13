@@ -26,9 +26,13 @@ This engine is named after Smilin' Stan S. Stanman, the hillarious character in 
 
 # Usage
 
-This project uses [Vite](https://vitejs.dev/) to serve the files. Just open the terminel and type
+This project uses NPM to handle Node dependencies and [Vite](https://vitejs.dev/) to serve the files. Just open the terminel and type
 
 ```
+# Install dependencies
+npm install
+
+# Start webserver
 npm run dev
 ```
 
